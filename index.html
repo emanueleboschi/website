@@ -447,11 +447,11 @@ nav {
       <form class="cform" action="https://formspree.io/f/xgodbdyz" method="POST" onsubmit="handleSend(event)">
         <input type="hidden" name="_replyto">
         <div class="crow">
-          <div class="cf"><label>Nome</label><input type="text" placeholder="Il tuo nome"></div>
-          <div class="cf"><label>Email</label><input type="email" placeholder="tua@email.com"></div>
+          <div class="cf"><label>Nome</label><input type="text" name="nome" placeholder="Il tuo nome" required></div>
+          <div class="cf"><label>Email</label><input type="email" name="email" placeholder="tua@email.com" required></div>
         </div>
-        <div class="cf"><label>Oggetto</label><input type="text" placeholder="Di cosa vuoi parlarmi?"></div>
-        <div class="cf"><label>Messaggio</label><textarea placeholder="Scrivi qui il tuo messaggio..."></textarea></div>
+        <div class="cf"><label>Oggetto</label><input type="text" name="oggetto" placeholder="Di cosa vuoi parlarmi?"></div>
+        <div class="cf"><label>Messaggio</label><textarea name="messaggio" placeholder="Scrivi qui il tuo messaggio..." required></textarea></div>
         <button class="btn-send" type="submit">
           Invia messaggio
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
