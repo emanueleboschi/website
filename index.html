@@ -399,7 +399,7 @@ nav {
       </div>
       <div class="gp" id="g2c">
         <img src="creature.jpg" alt="Creature">
-        <div class="gp-cap">2025</div>
+        <div class="gp-cap">2024</div>
       </div>
     </div>
 
@@ -660,10 +660,10 @@ window.addEventListener('wheel',e=>{
 },{passive:false});
 
 function handleSend(e){
-  e.preventDefault();
-  const btn=e.target.querySelector('.btn-send'),orig=btn.innerHTML;
-  btn.textContent='Messaggio inviato ✓';btn.style.background='#00AA55';btn.style.color='#fff';
-  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';btn.style.color='';},3500);
+  /* NON bloccare il submit — Formspree deve ricevere il POST */
+  const btn=e.target.querySelector('.btn-send');
+  btn.textContent='Invio in corso...';
+  btn.style.opacity='0.7';
 }
 </script>
 </body>
