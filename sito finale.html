@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOSCHI EMANUELE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  width:100%; min-height:100vh; overflow:hidden;
+  background:#020810; font-family:'DM Sans',sans-serif;
+  color:#D8E8F8; cursor:none;
+}
+
+/* ── CURSOR ── */
+#cur     { position:fixed; width:7px; height:7px; background:#00D4FF; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+#curRing { position:fixed; width:34px; height:34px; border:1px solid rgba(0,212,255,0.4); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); }
+
+/* ── HERO WRAPPER (bianco) ── */
+#hw {
+  position:fixed; inset:0; z-index:100;
+  background:#F2F2EE;
+  transform-origin:center; border-radius:0; overflow:hidden;
+  transition:transform 0.82s cubic-bezier(0.77,0,0.18,1), border-radius 0.82s ease, opacity 0.5s ease;
+}
+#hw.shrunk::after {
+  content:''; position:absolute; inset:-1px; border-radius:inherit;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.08); pointer-events:none;
+}
+
+/* ── HERO UI ── */
+#heroUI { position:absolute; inset:0; z-index:50; pointer-events:none; transition:opacity 0.5s ease, transform 0.5s ease; }
+#heroUI.hidden { opacity:0; transform:scale(0.98); pointer-events:none; }
+
+nav {
+  position:absolute; top:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:1.5rem 2.2rem; pointer-events:auto;
+}
+.nav-name { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; letter-spacing:0.08em; line-height:1; color:#1a1a18; text-decoration:none; }
+
+/* Logo centrato nel bg scuro (bodyBg) */
+.body-logo {
+  position:absolute; top:0.6rem; left:50%;
+  transform:translateX(-50%);
+  height:68px; width:auto; opacity:0.5; z-index:1;
+}
+
+/* MANU WOODS — due righe con gap (bodyBg): vedi blocco "SCROLLING TEXT" sotto */
+
+#heroBottom { position:absolute; bottom:0; right:0; display:flex; padding:1.5rem 2.2rem; pointer-events:auto; }
+.scroll-hint { display:flex; align-items:center; gap:0.5rem; font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(0,0,0,0.28); }
+.sh-line { width:36px; height:1px; background:rgba(0,0,0,0.12); }
+
+/* ── HERO SCENE: piena altezza, centrata in larghezza ── */
+#heroScene {
+  position:absolute;
+  top:0; bottom:0;                   /* altezza intera */
+  left:50%; transform:translateX(-50%);
+  width:62vw;
+  overflow:hidden;
+  z-index:1;
+}
+#pxLayer {
+  position:absolute;
+  top:-10%; left:-10%; width:120%; height:120%;
+  will-change:transform;
+}
+#foto2-img {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:contain; z-index:1;
+}
+#rc {
+  position:absolute; inset:0; width:100%; height:100%;
+  z-index:2; display:block;
+}
+
+/* ── GHOST NAMES (basso-sinistra e alto-destra) ── */
+.ghost-name {
+  position:absolute; bottom:1.2rem; left:1.8rem; z-index:20;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,9.5vw,8rem);
+  letter-spacing:0.03em; line-height:0.88;
+  color:rgba(0,0,0,0.05);
+  pointer-events:none; user-select:none;
+}
+.ghost-role {
+  position:absolute; top:1.2rem; right:1.8rem; z-index:20;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,9.5vw,8rem);
+  letter-spacing:0.03em; line-height:0.88;
+  color:rgba(0,0,0,0.05);
+  text-align:right;
+  pointer-events:none; user-select:none;
+}
+
+/* ── SCROLLING TEXT nel bodyBg (bg scuro) ── */
+.mw-row-body {
+  position:absolute; left:0; width:100%;
+  height:clamp(4rem, 8.5vw, 8rem);
+  overflow:hidden; pointer-events:none; z-index:1;
+  /* nessun top/bottom: impostato da .mw-row-top e .mw-row-bot */
+}
+.mw-row-top { bottom:calc(50% + 1rem); }  /* bordo inferiore sopra il centro */
+.mw-row-bot { top:calc(50% + 1rem); }      /* bordo superiore sotto il centro */
+.mw-inner-body {
+  display:inline-block; white-space:nowrap;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(4rem,8vw,7.5rem);
+  letter-spacing:0.06em;
+  color:rgba(255,255,255,0.06);
+  line-height:1;
+  animation:mwScroll 22s linear infinite;
+}
+@keyframes mwScroll {
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(-50%); }
+}
+@keyframes mwScrollRev {
+  0%   { transform:translateX(-50%); }
+  100% { transform:translateX(0); }
+}
+/* riga superiore scorre in senso opposto (sx→dx) */
+.mw-row-top .mw-inner-body { animation-name:mwScrollRev; }
+
+/* ── PHASE DOTS ── */
+#phasePill { position:fixed; right:1.8rem; top:50%; transform:translateY(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; transition:opacity 0.4s; }
+.pdot { width:4px; height:4px; border-radius:50%; background:rgba(120,120,120,0.35); transition:all 0.38s ease; }
+.pdot.on { background:#00D4FF; transform:scale(1.7); }
+
+
+/* ══════════════════════════════════════
+   LINEE ORGANICHE ANIMATE
+   Tre layer con drift più ampio
+══════════════════════════════════════ */
+.scene-lines {
+  position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+}
+.scene-lines svg {
+  position:absolute;
+  width:140%; height:140%;
+  top:-20%; left:-20%;
+}
+
+@keyframes drift1 {
+  0%,100% { transform:translate(0,0) rotate(0deg); }
+  25%      { transform:translate(-5%,3.5%) rotate(0.4deg); }
+  50%      { transform:translate(-2%,7%) rotate(-0.35deg); }
+  75%      { transform:translate(4.5%,2%) rotate(0.3deg); }
+}
+@keyframes drift2 {
+  0%,100% { transform:translate(0,0) rotate(0deg); }
+  33%      { transform:translate(5.5%,-3.5%) rotate(-0.45deg); }
+  66%      { transform:translate(-3.5%,5.5%) rotate(0.4deg); }
+}
+@keyframes drift3 {
+  0%,100% { transform:translate(0,0); }
+  40%      { transform:translate(3.5%,4.5%) rotate(0.2deg); }
+  70%      { transform:translate(-4.5%,-2.5%) rotate(-0.2deg); }
+}
+.la { animation:drift1 28s ease-in-out infinite; }
+.lb { animation:drift2 40s ease-in-out infinite; }
+.lc { animation:drift3 20s ease-in-out infinite; }
+
+/* paths riutilizzati; colore cambia per sezione */
+
+
+/* ── GALLERY ── */
+#gw { position:fixed; inset:0; z-index:50; background:#030912; overflow:hidden; display:none; }
+#gwNav { position:absolute; top:0; left:0; right:0; z-index:60; display:flex; align-items:center; justify-content:space-between; padding:1.5rem 2.2rem; }
+.gw-name    { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; letter-spacing:0.08em; color:#D8E8F8; }
+.gw-counter { display:flex; align-items:center; gap:0.8rem; }
+.gw-dots    { display:flex; gap:6px; align-items:center; }
+.gdot { height:2px; border-radius:1px; background:rgba(255,255,255,0.15); transition:all 0.35s; width:18px; }
+.gdot.lit { background:#00D4FF; width:32px; }
+.gw-count { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); }
+#gTrack { display:flex; width:300%; height:100%; }
+.gslide { width:33.333%; height:100%; position:relative; overflow:hidden; flex-shrink:0; }
+
+.slide-quote { position:absolute; z-index:20; top:50%; left:5%; transform:translateY(-50%); max-width:26%; pointer-events:none; }
+.sq { font-family:'Playfair Display',serif; font-size:clamp(1.15rem,2vw,1.6rem); line-height:1.55; color:#B0C8E8; }
+.sq em { font-style:italic; color:#D8E8F8; }
+.sq strong { color:#00D4FF; font-style:normal; }
+.sq-sig { font-family:'Playfair Display',serif; font-style:italic; font-size:1rem; color:rgba(0,212,255,0.38); margin-top:0.75rem; display:block; }
+
+.gp { position:absolute; overflow:hidden; border:1px solid rgba(0,70,255,0.12); transition:box-shadow 0.4s; }
+.gp:hover { box-shadow:0 20px 56px rgba(0,0,0,0.65); z-index:10; }
+.gp img { width:100%; height:100%; object-fit:cover; display:block; }
+.gp-cap { position:absolute; bottom:0; left:0; right:0; padding:2.5rem 0.8rem 0.6rem; background:linear-gradient(transparent,rgba(2,5,18,0.84)); font-size:0.57rem; letter-spacing:0.13em; text-transform:uppercase; color:rgba(255,255,255,0.36); }
+
+/* Slide 1 — 3 foto */
+#g1a { width:240px; height:360px; top:10%; left:33%; transform:rotate(-1.4deg); }
+#g1b { width:480px; height:370px; top:26%; left:56%; transform:rotate(0.5deg); }
+#g1c { width:200px; height:270px; top:56%; left:31%; transform:rotate(1.1deg); }
+
+/* Slide 2 — 3 foto (faro basso-sx, rolleiflex alto-centro, creature basso-dx) */
+#g2a { width:400px; height:500px; top:40%; left:5%;  transform:rotate(-0.8deg); }
+#g2b { width:470px; height:360px; top:10%; left:37%; transform:rotate(0.6deg);  }
+#g2c { width:320px; height:400px; top:44%; left:68%; transform:rotate(-1.0deg); }
+
+/* Slide 3 — 2 foto grandi */
+#g3a { width:500px; height:560px; top:7%;  left:5%;  transform:rotate(0.8deg);  }
+#g3b { width:430px; height:490px; top:18%; left:50%; transform:rotate(-1.0deg); }
+
+.gw-hint { position:absolute; bottom:1.5rem; right:2.2rem; z-index:60; display:flex; align-items:center; gap:0.5rem; font-size:0.64rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.22); }
+
+/* ── CONTACT ── */
+#mainContent { position:relative; display:none; background:#020810; }
+.s-contact { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:3rem 2.5rem; position:relative; overflow:hidden; background:#020810; }
+.ci { max-width:780px; margin:0 auto; width:100%; position:relative; z-index:2; }
+.c-sup   { font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; color:#00D4FF; margin-bottom:1rem; display:block; }
+.c-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(4rem,9vw,7rem); letter-spacing:0.04em; line-height:0.9; margin-bottom:2.8rem; }
+.c-title em { color:inherit; font-style:normal; }
+.cform { display:grid; gap:1.1rem; }
+.crow  { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+.cf label { display:block; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.45rem; }
+.cf input,.cf textarea { width:100%; background:rgba(6,13,30,0.85); border:1px solid rgba(0,100,255,0.18); border-radius:8px; padding:0.82rem 1rem; color:#D8E8F8; font-family:'DM Sans',sans-serif; font-size:0.88rem; outline:none; resize:none; transition:border-color 0.3s; cursor:text; }
+.cf input:focus,.cf textarea:focus { border-color:rgba(0,212,255,0.48); }
+.cf input::placeholder,.cf textarea::placeholder { color:rgba(255,255,255,0.18); }
+.cf textarea { height:130px; }
+.btn-send { background:#00D4FF; color:#020810; font-family:'DM Sans',sans-serif; font-weight:500; font-size:0.82rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.95rem 2.4rem; border-radius:2rem; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem; width:fit-content; transition:background 0.2s,transform 0.2s; }
+.btn-send:hover { background:#2FD8FF; transform:translateY(-2px); }
+.cfoot { margin-top:3.5rem; padding-top:1.8rem; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:space-between; }
+.cfoot-name { font-family:'Bebas Neue',sans-serif; font-size:1rem; color:rgba(255,255,255,0.14); letter-spacing:0.1em; }
+.cfoot-copy { font-size:0.68rem; color:rgba(255,255,255,0.16); }
+
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+.bob { animation:bob 2.2s ease-in-out infinite; display:inline-block; }
+</style>
+</head>
+<body>
+
+<div id="bodyBg" aria-hidden="true" style="position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;">
+  <!-- Linee animate nel bg scuro -->
+  <svg style="position:absolute;width:140%;height:140%;top:-20%;left:-20%;"
+       viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <g class="la" stroke="#1040a0" stroke-width="0.9" fill="none" opacity="0.2">
+      <path d="M-120 320 C 80 80 380 480 720 260 C 1000 80 1250 420 1560 220"/>
+      <path d="M-120 440 C 120 200 420 560 740 340 C 1020 160 1280 500 1600 300"/>
+      <path d="M-120 560 C 160 340 460 640 760 440 C 1040 260 1300 580 1620 380"/>
+      <path d="M-120 680 C 200 480 500 720 780 540 C 1060 370 1330 660 1660 460"/>
+    </g>
+    <g class="lb" stroke="#0055cc" stroke-width="0.7" fill="none" opacity="0.14">
+      <path d="M-120 180 C 200 -40 560 380 860 140 C 1100 -40 1360 300 1700 100"/>
+      <path d="M-120 780 C 300 620 600 880 900 700 C 1150 540 1380 760 1700 580"/>
+      <path d="M 300 -60 C 280 160 360 420 300 640 C 250 820 320 900 280 1000"/>
+      <path d="M 900 -60 C 860 180 940 460 880 680 C 830 860 900 920 860 1020"/>
+    </g>
+    <g class="lc" stroke="#0060d0" stroke-width="0.6" fill="none" opacity="0.1">
+      <path d="M 200 100 C 500 -80 900 120 1100 300 C 1300 480 1200 720 900 800 C 600 880 200 740 100 540 C 0 340 -100 280 200 100 Z"/>
+      <path d="M 440 230 C 620 60 860 200 980 380 C 1100 560 1040 700 820 750 C 600 800 380 700 320 540 C 260 380 260 400 440 230 Z"/>
+    </g>
+  </svg>
+
+  <!-- Logo centrato in alto (visibile nel bg scuro) -->
+  <img src="logo.png" class="body-logo" alt="Logo">
+
+  <!-- MANU WOODS — riga superiore -->
+  <div class="mw-row-body mw-row-top">
+    <span class="mw-inner-body">MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+  <!-- MANU WOODS — riga inferiore -->
+  <div class="mw-row-body mw-row-bot">
+    <span class="mw-inner-body">MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MANU&nbsp;WOODS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</div>
+
+<div id="cur"></div>
+<div id="curRing"></div>
+
+<div id="phasePill">
+  <div class="pdot on"></div><div class="pdot"></div>
+  <div class="pdot"></div><div class="pdot"></div>
+</div>
+
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<div id="hw">
+
+  <!-- Linee animate su sfondo bianco -->
+  <div class="scene-lines" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <g class="la" stroke="#b0ab98" stroke-width="0.8" fill="none" opacity="0.55">
+        <path d="M-120 320 C 80 80 380 480 720 260 C 1000 80 1250 420 1560 220"/>
+        <path d="M-120 440 C 120 200 420 560 740 340 C 1020 160 1280 500 1600 300"/>
+        <path d="M-120 560 C 160 340 460 640 760 440 C 1040 260 1300 580 1620 380"/>
+        <path d="M-120 680 C 200 480 500 720 780 540 C 1060 370 1330 660 1660 460"/>
+      </g>
+      <g class="lb" stroke="#c4bfac" stroke-width="0.65" fill="none" opacity="0.4">
+        <path d="M-120 180 C 200 -40 560 380 860 140 C 1100 -40 1360 300 1700 100"/>
+        <path d="M-120 780 C 300 620 600 880 900 700 C 1150 540 1380 760 1700 580"/>
+        <path d="M 300 -60 C 280 160 360 420 300 640 C 250 820 320 900 280 1000"/>
+        <path d="M 900 -60 C 860 180 940 460 880 680 C 830 860 900 920 860 1020"/>
+        <path d="M 1300 -60 C 1320 160 1240 440 1300 660 C 1350 840 1280 920 1320 1020"/>
+      </g>
+      <g class="lc" stroke="#a8a496" stroke-width="0.55" fill="none" opacity="0.3">
+        <path d="M 200 100 C 500 -80 900 120 1100 300 C 1300 480 1200 720 900 800 C 600 880 200 740 100 540 C 0 340 -100 280 200 100 Z"/>
+        <path d="M 320 160 C 560 -20 880 160 1040 340 C 1200 520 1120 700 860 770 C 600 840 280 720 200 540 C 120 360 80 340 320 160 Z"/>
+        <path d="M 440 230 C 620 60 860 200 980 380 C 1100 560 1040 700 820 750 C 600 800 380 700 320 540 C 260 380 260 400 440 230 Z"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- UI (nav + scorri) — si nasconde al 1° scroll -->
+  <div id="heroUI">
+    <nav>
+      <a href="#" class="nav-name">MANU<br>WOODS</a>
+      <!-- logo spostato nel bodyBg -->
+    </nav>
+    <div id="heroBottom">
+      <div class="scroll-hint"><div class="sh-line"></div>scorri<span class="bob">↓</span></div>
+    </div>
+  </div>
+
+  <!-- Foto piena altezza -->
+  <div id="heroScene">
+    <div id="pxLayer">
+      <img src="foto2.png" id="foto2-img" alt="">
+      <canvas id="rc"></canvas>
+    </div>
+  </div>
+
+  <!-- Ghost BOSCHI EMANUELE — basso sinistra -->
+  <div class="ghost-name">BOSCHI<br>EMANUELE</div>
+
+  <!-- Ghost 3D ARTIST — alto destra (speculare) -->
+  <div class="ghost-role">3D<br>ARTIST</div>
+
+</div>
+
+
+<!-- ══════════════════════ GALLERY ══════════════════════ -->
+<div id="gw">
+
+  <!-- Linee animate su sfondo scuro -->
+  <div class="scene-lines" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <g class="la" stroke="#1040a0" stroke-width="0.9" fill="none" opacity="0.2">
+        <path d="M-120 320 C 80 80 380 480 720 260 C 1000 80 1250 420 1560 220"/>
+        <path d="M-120 440 C 120 200 420 560 740 340 C 1020 160 1280 500 1600 300"/>
+        <path d="M-120 560 C 160 340 460 640 760 440 C 1040 260 1300 580 1620 380"/>
+        <path d="M-120 680 C 200 480 500 720 780 540 C 1060 370 1330 660 1660 460"/>
+      </g>
+      <g class="lb" stroke="#0055cc" stroke-width="0.7" fill="none" opacity="0.14">
+        <path d="M-120 180 C 200 -40 560 380 860 140 C 1100 -40 1360 300 1700 100"/>
+        <path d="M-120 780 C 300 620 600 880 900 700 C 1150 540 1380 760 1700 580"/>
+        <path d="M 300 -60 C 280 160 360 420 300 640 C 250 820 320 900 280 1000"/>
+        <path d="M 900 -60 C 860 180 940 460 880 680 C 830 860 900 920 860 1020"/>
+      </g>
+      <g class="lc" stroke="#0060d0" stroke-width="0.6" fill="none" opacity="0.1">
+        <path d="M 200 100 C 500 -80 900 120 1100 300 C 1300 480 1200 720 900 800 C 600 880 200 740 100 540 C 0 340 -100 280 200 100 Z"/>
+        <path d="M 440 230 C 620 60 860 200 980 380 C 1100 560 1040 700 820 750 C 600 800 380 700 320 540 C 260 380 260 400 440 230 Z"/>
+      </g>
+    </svg>
+  </div>
+
+  <div id="gwNav">
+    <span class="gw-name">BOSCHI EMANUELE</span>
+    <div class="gw-counter">
+      <div class="gw-dots">
+        <div class="gdot lit"></div><div class="gdot"></div><div class="gdot"></div>
+      </div>
+      <span class="gw-count" id="gwCount">01 / 03</span>
+    </div>
+  </div>
+
+  <div id="gTrack">
+
+    <!-- SLIDE 1: lego · serpente · render -->
+    <div class="gslide">
+      <div class="slide-quote">
+        <p class="sq" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,9vw,7rem);font-style:normal;letter-spacing:0.04em;line-height:0.9;color:#D8E8F8;">I MIEI LAVORI</p>
+      </div>
+      <div class="gp" id="g1a">
+        <img src="lego.jpg" alt="Lego">
+        <div class="gp-cap">Lego Character, 2024</div>
+      </div>
+      <div class="gp" id="g1b">
+        <img src="serpente.png" alt="Serpente">
+        <div class="gp-cap">Serpente, 2024</div>
+      </div>
+      <div class="gp" id="g1c">
+        <img src="render.jpg" alt="Render">
+        <div class="gp-cap">Render, 2024</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: faro · rolleiflex · creature -->
+    <div class="gslide">
+      <div class="gp" id="g2a">
+        <img src="faro.jpg" alt="Faro">
+        <div class="gp-cap">Faro, 2023</div>
+      </div>
+      <div class="gp" id="g2b">
+        <img src="rolleiflex.png" alt="Rolleiflex">
+        <div class="gp-cap">Rolleiflex, 2024</div>
+      </div>
+      <div class="gp" id="g2c">
+        <img src="creature.jpg" alt="Creature">
+        <div class="gp-cap">Creature Design, 2024</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: tlou · heart (solo 2, più grandi) -->
+    <div class="gslide">
+      <div class="gp" id="g3a">
+        <img src="tlou.png" alt="The Last of Us">
+        <div class="gp-cap">The Last of Us, 2024</div>
+      </div>
+      <div class="gp" id="g3b">
+        <img src="heart1.jpg" alt="Heart Study">
+        <div class="gp-cap">Heart Study, 2023</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="gw-hint"><div class="sh-line" style="background:rgba(255,255,255,0.14)"></div>scorri ancora<span class="bob">↓</span></div>
+</div>
+
+
+<!-- ══════════════════════ CONTACT ══════════════════════ -->
+<div id="mainContent">
+  <section class="s-contact">
+
+    <div class="scene-lines" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <g class="lb" stroke="#1040a0" stroke-width="0.9" fill="none" opacity="0.18">
+          <path d="M-120 320 C 80 80 380 480 720 260 C 1000 80 1250 420 1560 220"/>
+          <path d="M-120 560 C 160 340 460 640 760 440 C 1040 260 1300 580 1620 380"/>
+        </g>
+        <g class="la" stroke="#0055cc" stroke-width="0.7" fill="none" opacity="0.12">
+          <path d="M-120 180 C 200 -40 560 380 860 140 C 1100 -40 1360 300 1700 100"/>
+          <path d="M-120 780 C 300 620 600 880 900 700 C 1150 540 1380 760 1700 580"/>
+          <path d="M 300 -60 C 280 160 360 420 300 640 C 250 820 320 900 280 1000"/>
+        </g>
+        <g class="lc" stroke="#0060d0" stroke-width="0.6" fill="none" opacity="0.08">
+          <path d="M 200 100 C 500 -80 900 120 1100 300 C 1300 480 1200 720 900 800 C 600 880 200 740 100 540 C 0 340 -100 280 200 100 Z"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="ci">
+      <h2 class="c-title" style="margin-bottom:3.5rem;">SCRI<em>VI</em>MI</h2>
+      <form class="cform" action="https://formspree.io/f/xgodbdyz" method="POST" onsubmit="handleSend(event)">
+        <input type="hidden" name="_replyto">
+        <div class="crow">
+          <div class="cf"><label>Nome</label><input type="text" placeholder="Il tuo nome"></div>
+          <div class="cf"><label>Email</label><input type="email" placeholder="tua@email.com"></div>
+        </div>
+        <div class="cf"><label>Oggetto</label><input type="text" placeholder="Di cosa vuoi parlarmi?"></div>
+        <div class="cf"><label>Messaggio</label><textarea placeholder="Scrivi qui il tuo messaggio..."></textarea></div>
+        <button class="btn-send" type="submit">
+          Invia messaggio
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+      <div class="cfoot">
+        <span class="cfoot-name">BOSCHI EMANUELE</span>
+        <span class="cfoot-copy">© 2026 · Tutti i diritti riservati · Milano, Italia</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+<script>
+/* CURSOR */
+const $cur=document.getElementById('cur'),$ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function animCursor(){
+  $cur.style.left=mx+'px';$cur.style.top=my+'px';
+  rx+=(mx-rx)*0.13;ry+=(my-ry)*0.13;
+  $ring.style.left=rx+'px';$ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+})();
+
+/* CANVAS + SCIA */
+const p1img=new Image();p1img.src='foto1.png';
+const canvas=document.getElementById('rc');
+const ctx=canvas.getContext('2d');
+const pxLayer=document.getElementById('pxLayer');
+const trail=[];
+let heroActive=true;
+
+function resizeCanvas(){
+  const c=document.getElementById('heroScene');
+  canvas.width=c.offsetWidth*1.2;
+  canvas.height=c.offsetHeight*1.2;
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+
+function draw(){
+  const w=canvas.width,h=canvas.height,now=Date.now();
+  while(trail.length&&now-trail[0].t>500)trail.shift();
+  ctx.clearRect(0,0,w,h);
+  if(p1img.complete&&p1img.naturalWidth>0){
+    const iR=p1img.width/p1img.height,cR=w/h;
+    let dW,dH,dX,dY;
+    /* CONTAIN: mostra l'intera immagine senza ritaglio */
+    if(iR>cR){dW=w;dH=w/iR;dX=0;dY=(h-dH)/2;}
+    else{dH=h;dW=h*iR;dX=(w-dW)/2;dY=0;}
+    ctx.drawImage(p1img,dX,dY,dW,dH);
+  }
+  ctx.globalCompositeOperation='destination-out';
+  trail.forEach(p=>{
+    const alpha=Math.pow(1-(now-p.t)/500,0.5);
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,110);
+    g.addColorStop(0,`rgba(0,0,0,${alpha})`);g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,110,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalCompositeOperation='source-over';
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* PARALLASSE */
+let tx=0,ty=0,cpx=0,cpy=0;
+document.addEventListener('mousemove',e=>{
+  if(!heroActive)return;
+  tx=(e.clientX/window.innerWidth-0.5)*-25;
+  ty=(e.clientY/window.innerHeight-0.5)*-20;
+  const rect=canvas.getBoundingClientRect();
+  trail.push({x:(e.clientX-rect.left)*(canvas.width/rect.width),y:(e.clientY-rect.top)*(canvas.height/rect.height),t:Date.now()});
+});
+(function animPX(){
+  cpx+=(tx-cpx)*0.08;cpy+=(ty-cpy)*0.08;
+  if(heroActive)pxLayer.style.transform=`translate(${cpx}px,${cpy}px)`;
+  requestAnimationFrame(animPX);
+})();
+
+/* PANNELLO HELPER */
+function showPanel(el,fromDir){
+  el.style.transition='none';
+  el.style.opacity='0';
+  el.style.transform=fromDir==='bottom'?'translateY(18px)':fromDir==='top'?'translateY(-18px)':'translateY(0)';
+  el.style.display='block';
+  el.offsetHeight;
+  el.style.transition='opacity 0.5s ease,transform 0.5s ease';
+  el.style.opacity='1';el.style.transform='translateY(0)';
+}
+function hidePanel(el,toDir,cb){
+  el.style.transition='opacity 0.45s ease,transform 0.45s ease';
+  el.style.opacity='0';
+  el.style.transform=toDir==='top'?'translateY(-18px)':toDir==='bottom'?'translateY(18px)':'translateY(0)';
+  setTimeout(()=>{el.style.display='none';cb&&cb();},460);
+}
+
+/* STATE MACHINE */
+const hw=document.getElementById('hw');
+const heroUI=document.getElementById('heroUI');
+const pdots=document.querySelectorAll('.pdot');
+const pill=document.getElementById('phasePill');
+const mcEl=document.getElementById('mainContent');
+const gw=document.getElementById('gw');
+const gTrack=document.getElementById('gTrack');
+const gwDots=document.querySelectorAll('.gdot');
+const gwCount=document.getElementById('gwCount');
+
+const SCALES=['1','0.82','0.63','0.44'];
+const RADII=['0px','14px','22px','30px'];
+let appState='hero',phase=0,gSlide=0,scrollLk=false;
+
+function setPhase(p){
+  phase=p;
+  hw.style.transform=`scale(${SCALES[p]})`;
+  hw.style.borderRadius=RADII[p];
+  hw.classList.toggle('shrunk',p>0);
+  pdots.forEach((d,i)=>d.classList.toggle('on',i===p));
+  heroUI.classList.toggle('hidden',p>=1);
+}
+
+function exitHero(){
+  heroActive=false;trail.length=0;
+  const bodyBg=document.getElementById('bodyBg');
+  hw.style.transition='transform 0.72s cubic-bezier(0.77,0,0.18,1),border-radius 0.72s,opacity 0.44s';
+  hw.style.transform='scale(0.08)';hw.style.borderRadius='32px';hw.style.opacity='0';
+  pill.style.opacity='0';
+  /* fade anche il bg scuro → tutta la pagina svanisce */
+  bodyBg.style.transition='opacity 0.44s ease';
+  bodyBg.style.opacity='0';
+  setTimeout(()=>{
+    hw.style.display='none';
+    /* bodyBg rimane a 0 — sarà ripristinato solo in enterHero */
+    openGallery(0);
+  },740);
+}
+function enterHero(atPhase){
+  const bodyBg=document.getElementById('bodyBg');
+  hw.style.transition='none';hw.style.opacity='0';hw.style.display='block';
+  setPhase(atPhase);hw.offsetHeight;
+  hw.style.transition='transform 0.82s cubic-bezier(0.77,0,0.18,1),border-radius 0.82s ease,opacity 0.5s ease';
+  hw.style.opacity='1';pill.style.opacity='1';
+  /* ripristina bodyBg solo quando si torna all'hero */
+  bodyBg.style.transition='opacity 0.5s ease';
+  bodyBg.style.opacity='1';
+  heroActive=true;trail.length=0;
+  setTimeout(()=>{scrollLk=false;},620);
+}
+
+function openGallery(slide){
+  gSlide=slide;
+  gTrack.style.transition='none';
+  gTrack.style.transform=`translateX(-${gSlide*33.333}%)`;
+  updateGalleryDots();
+  showPanel(gw,slide===0?'bottom':'top');
+  setTimeout(()=>{gTrack.style.transition='transform 0.9s cubic-bezier(0.77,0,0.18,1)';scrollLk=false;},550);
+}
+function closeGallery(toDir,cb){hidePanel(gw,toDir,cb);}
+function updateGalleryDots(){
+  gwDots.forEach((d,i)=>d.classList.toggle('lit',i===gSlide));
+  gwCount.textContent=String(gSlide+1).padStart(2,'0')+' / 03';
+}
+function slideGallery(dir){
+  gSlide+=dir;
+  gTrack.style.transform=`translateX(-${gSlide*33.333}%)`;
+  updateGalleryDots();
+}
+
+function openContact(){
+  mcEl.style.display='block';
+  document.body.style.overflow='auto';
+  window.scrollTo({top:0,behavior:'instant'});
+  setTimeout(()=>{scrollLk=false;},100);
+}
+function closeContact(cb){
+  document.body.style.overflow='hidden';
+  window.scrollTo({top:0,behavior:'instant'});
+  mcEl.style.display='none';cb&&cb();
+}
+
+window.addEventListener('wheel',e=>{
+  if(appState==='contact'){
+    if(e.deltaY<0&&window.scrollY===0){
+      if(scrollLk){e.preventDefault();return;}
+      e.preventDefault();scrollLk=true;appState='gallery';
+      closeContact(()=>openGallery(2));
+    }
+    return;
+  }
+  if(scrollLk){e.preventDefault();return;}
+  e.preventDefault();
+  if(appState==='hero'){
+    const next=phase+(e.deltaY>0?1:-1);
+    if(next>=0&&next<=3){scrollLk=true;setPhase(next);setTimeout(()=>{scrollLk=false;},920);}
+    else if(next===4){scrollLk=true;appState='gallery';exitHero();}
+  }else if(appState==='gallery'){
+    if(e.deltaY>0){
+      if(gSlide<2){scrollLk=true;slideGallery(+1);setTimeout(()=>{scrollLk=false;},960);}
+      else{scrollLk=true;appState='contact';closeGallery('top',openContact);}
+    }else{
+      if(gSlide>0){scrollLk=true;slideGallery(-1);setTimeout(()=>{scrollLk=false;},960);}
+      else{scrollLk=true;appState='hero';closeGallery('bottom',()=>enterHero(3));}
+    }
+  }
+},{passive:false});
+
+function handleSend(e){
+  e.preventDefault();
+  const btn=e.target.querySelector('.btn-send'),orig=btn.innerHTML;
+  btn.textContent='Messaggio inviato ✓';btn.style.background='#00AA55';btn.style.color='#fff';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';btn.style.color='';},3500);
+}
+</script>
+</body>
+</html>
